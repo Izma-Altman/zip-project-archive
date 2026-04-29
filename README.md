@@ -26,7 +26,14 @@
 
 ## Installation & Setup
 1. create a virtual environment
-2. Fill in the details in the `.env` file
+2. Fill in the details in the `.env` file - in `backend` folder
+
+    ```
+    GOOGLE_CLIENT_ID =
+    GOOGLE_CLIENT_SECRET =
+    ALLOWED_DOMAIN = 
+    JWT_SECRET_KEY =
+    ```
 3. install dependencies `pip install -r requirements.txt` ( in backend folder )
 4. `npm install` ( in frontend folder )
 5. To run: `python run.py` ( in backend folder ) and `npm run dev` ( in frontend folder )
