@@ -11,16 +11,47 @@ from io import BytesIO
 
 admin_bp = Blueprint("admin", __name__, url_prefix="/admin")
 
+@admin_bp.route("/download-template/<template_type>", methods=["GET"])
+def download_template(template_type):
+    output = BytesIO()
+    
+    if template_type == "projects":
+        df = pd.DataFrame(columns=["title", "student_email", "student_name", "project_type", "year", "sem"])
+        filename = "Project_Upload_Template.xlsx"
+    elif template_type == "faculty":
+        df = pd.DataFrame(columns=["name", "email"])
+        filename = "Faculty_Upload_Template.xlsx"
+    else:
+        return {"error": "Invalid template type"}, 400
+
+    df.to_excel(output, index=False, engine='openpyxl') 
+    output.seek(0)
+    
+    return send_file(
+        output, 
+        download_name=filename, 
+        as_attachment=True, 
+        mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )
+
 @admin_bp.route("/users", methods=["GET"])
 @role_required("ADMIN")
 def list_users():
-    users = User.query.all()
+    current_admin_id = get_jwt_identity()
+    
+    # 2. Fetch everyone who is an ADMIN or FACULTY, EXCEPT the current user
+    users = User.query.filter(
+        User.role.in_(["ADMIN", "FACULTY"]),
+        User.id != current_admin_id
+    ).all()
+    
     return jsonify([
         {
             "id": u.id,
             "name": u.name,
             "email": u.email,
-            "role": u.role
+            "role": u.role,
+            "department": u.department # Added department so the table looks nice!
         }
         for u in users
     ])
@@ -44,7 +75,7 @@ def update_user_role(user_id):
     return {"message": "Role updated successfully"}
 
 @admin_bp.route("/upload-approved-projects", methods=["POST"])
-@role_required("ADMIN", "FACULTY")
+@role_required("ADMIN", "FACULTY") # ✅ Cleaned using decorator
 def upload_approved_projects():
     file = request.files.get("excel")
     if not file:
@@ -136,9 +167,9 @@ def upload_approved_projects():
     return {"message": f"Successfully processed. Added: {added}, Skipped (Duplicates): {skipped}"}, 200
 
 @admin_bp.route("/upload-faculty", methods=["POST"])
-@role_required("ADMIN")
+@role_required("ADMIN") # ✅ Cleaned using decorator
 def upload_faculty_list():
-
+    # Identify the exact admin currently doing the upload
     current_admin_id = get_jwt_identity()
 
     file = request.files.get("excel")
@@ -170,11 +201,12 @@ def upload_faculty_list():
         existing_user = User.query.filter_by(email=email).first()
         
         if existing_user:
-
+            # ✅ STRICT SELF-DEMOTION LOCK: Will not convert the uploading Admin to Faculty
             if existing_user.id == current_admin_id:
                 skipped += 1
                 continue
 
+            # ✅ Will successfully convert ANY OTHER user (including other Admins) to Faculty
             if existing_user.role != "FACULTY":
                 existing_user.role = "FACULTY"
                 existing_user.department = department
@@ -183,6 +215,7 @@ def upload_faculty_list():
                 skipped += 1
             continue
 
+        # If user does not exist at all, create a new Faculty member
         faculty = User(
             id=str(uuid4()),
             name=name,
@@ -195,27 +228,3 @@ def upload_faculty_list():
 
     db.session.commit()
     return {"message": f"Successfully processed. Added/Updated: {added}, Skipped: {skipped}"}, 200
-
-@admin_bp.route("/download-template/<template_type>", methods=["GET"])
-def download_template(template_type):
-    output = BytesIO()
-    
-    if template_type == "projects":
-        df = pd.DataFrame(columns=["title", "student_email", "student_name", "project_type", "year", "sem"])
-        filename = "Project_Upload_Template.xlsx"
-        
-    elif template_type == "faculty":
-        df = pd.DataFrame(columns=["name", "email"])
-        filename = "Faculty_Upload_Template.xlsx"
-    else:
-        return {"error": "Invalid template type"}, 400
-
-    df.to_excel(output, index=False, engine='openpyxl') 
-    output.seek(0)
-    
-    return send_file(
-        output, 
-        download_name=filename, 
-        as_attachment=True, 
-        mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-    )
