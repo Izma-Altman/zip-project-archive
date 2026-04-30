@@ -1,12 +1,13 @@
-from flask import Blueprint, url_for, redirect, jsonify, current_app
+from flask import Blueprint, url_for, redirect, jsonify, current_app, request
 from app.extensions import oauth, db
 from app.models.user import User
-from flask_jwt_extended import jwt_required, get_jwt_identity,create_access_token
+from flask_jwt_extended import create_access_token
 
 auth_bp = Blueprint("auth", __name__)
 
 @auth_bp.route("/login")
 def login():
+    # Cleaned out the override logic entirely
     redirect_uri = url_for("auth.callback", _external=True)
     return oauth.google.authorize_redirect(redirect_uri)
 
@@ -14,35 +15,36 @@ def login():
 def callback():
     try:
         token = oauth.google.authorize_access_token()
-
-        resp = oauth.google.get(
-            "https://www.googleapis.com/oauth2/v3/userinfo"
-        )
+        resp = oauth.google.get("https://www.googleapis.com/oauth2/v3/userinfo")
         user_info = resp.json()
 
         email = user_info.get("email")
         name = user_info.get("name")
 
-        frontend_url = "http://localhost:5173"
-
         allowed_domain = current_app.config.get("ALLOWED_DOMAIN")
-        if allowed_domain and not email.endswith(allowed_domain):
-            return redirect(f"{frontend_url}/oauth/error?reason=unauthorized_domain")
+        if allowed_domain:
+            domain_list = [d.strip() for d in allowed_domain.split(",")]
+            if email.split("@")[1] not in domain_list:
+                return redirect("https://project-achive.vercel.app/?reason=unauthorized_domain")
 
         user = User.query.filter_by(email=email).first()
         if not user:
+            # Everyone defaults to STUDENT now securely
             user = User(
-                name=name,
-                email=email,
+                name=name, email=email,
                 role="STUDENT",
                 department="CSE"
             )
             db.session.add(user)
-            db.session.commit()
+                
+        db.session.commit()
 
+        # Generate the token
         access_token = create_access_token(identity=user.id)
+        
+        frontend_url = "https://project-achive.vercel.app"
+        return redirect(f"{frontend_url}/?token={access_token}")
 
-        return redirect(f"{frontend_url}/oauth/success?token={access_token}")
-    
     except Exception as e:
-        return redirect("http://localhost:5173/oauth/error?reason=login_failed")
+        print(f"OAuth Error: {e}")
+        return redirect("https://project-achive.vercel.app/?reason=login_failed")
