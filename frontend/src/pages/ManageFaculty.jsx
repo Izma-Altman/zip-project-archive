@@ -12,7 +12,9 @@ const ManageFaculty = ({ user, showMessage, API_BASE_URL, setIsProcessing }) => 
       const res = await fetch(`${API_BASE_URL}/admin/users`, { headers: { 'Authorization': `Bearer ${token}` }});
       if (res.ok) {
         const usersData = await res.json();
-        setFacultyList(usersData.filter(u => u.role === 'FACULTY'));
+        // The backend already filtered out Students and your own account, 
+        // so we just dump the raw secure data straight into the table!
+        setFacultyList(usersData);
       }
     } catch (err) {
       console.error("Failed to fetch faculties", err);
