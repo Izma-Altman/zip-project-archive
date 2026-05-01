@@ -2,12 +2,10 @@ import pdfplumber
 import numpy as np
 import requests
 import os
-import time  # 🟢 Added this so Python can "sleep"
+import time
 
-# Grab the secret token from your local .env file
 HF_TOKEN = os.getenv("HF_TOKEN")
 
-# The URL to HuggingFace's free supercomputer
 API_URL = "https://router.huggingface.co/hf-inference/models/sentence-transformers/all-MiniLM-L6-v2/pipeline/feature-extraction"
 
 def extract_text_from_pdf(file_path):
@@ -23,7 +21,6 @@ def extract_text_from_pdf(file_path):
         print(f"Error reading PDF: {e}")
         return None
 
-# 🟢 Upgraded function with a retry mechanism and timeout
 def get_embedding(text, max_retries=3):
     if not text:
         return None
@@ -34,10 +31,10 @@ def get_embedding(text, max_retries=3):
     
     for attempt in range(max_retries):
         try:
-            # 🟢 Added a strict 15-second timeout so it never hangs infinitely
+            #15-second timeout so it never hangs infinitely
             response = requests.post(API_URL, headers=headers, json=payload, timeout=15)
             
-            # 🟢 If HuggingFace is sleeping, catch it BEFORE it crashes
+            #If HuggingFace is sleeping, catch it BEFORE it crashes
             if response.status_code == 503:
                 print(f"Attempt {attempt + 1}: HuggingFace model is warming up. Sleeping for 15s...")
                 time.sleep(15)
@@ -59,7 +56,7 @@ def get_embedding(text, max_retries=3):
             if norm > 0:
                 emb_array = emb_array / norm
                 
-            # 🟢 If we get here, we successfully got the math array! Break the loop.
+            # If we get here we successfully got the math array! Break the loop.
             return emb_array
             
         except requests.exceptions.Timeout:
@@ -72,7 +69,7 @@ def get_embedding(text, max_retries=3):
             print("Retrying...")
             time.sleep(5)
              
-    print("❌ Failed to get embeddings after maximum retries.")
+    print("Failed to get embeddings after maximum retries.")
     return None
 
 def calculate_similarity(new_embedding, existing_embeddings):
