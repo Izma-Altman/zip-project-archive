@@ -2,7 +2,7 @@
 .Zip is a centralized, full-stack platform designed to store, manage, retrieve and analyze academic projects. Built for educational Institutions, it prevents the repetition of projects and promotes new and innovative ideas.
 
 * **Similarity Checker:**
-  Integrates the `BAAI bge-base-en-v1.5` text embedding model to mathematically scan abstracts and titles to detect overlapping project ideas.
+  Integrates the `all-MiniLM-L6-v2` text embedding model to mathematically scan abstracts and titles to detect overlapping project ideas.
 
 * **Trend Analytics:**
   Visual dashboards that track the most popular technology stacks used by students.
