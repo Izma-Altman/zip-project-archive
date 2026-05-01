@@ -494,7 +494,7 @@ def check_similarity(project_id):
         title_sim = max(0.0, min(1.0, float(np.dot(target_title_emb, p_title_emb))))
         abs_sim = max(0.0, min(1.0, float(np.dot(target_abs_emb, p_abs_emb))))
         final_score = (title_sim * 0.3) + (abs_sim * 0.7) # Weighted score: The abstract text matters more (70%) than just the title (30%)
-        if final_score > 0.55: # Only return matches that are somewhat significant (>55% similarity)
+        if final_score > 0.50: # Only return matches that are somewhat significant (>55% similarity)
             results.append({
                 "id": p.id, "title": p.title, "student": p.uploaded_by,
                 "overall_match": round(final_score * 100, 1),
