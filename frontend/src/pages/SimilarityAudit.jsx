@@ -3,11 +3,11 @@ import { FileText, Search, X, AlertCircle, CheckCircle } from 'lucide-react';
 import ProjectDetailView from './ProjectDetailView'; 
 
 const getSeverityStyles = (score) => {
-  if (score >= 68) return { card: 'bg-red-100 dark:bg-red-900/30 border-red-400 dark:border-red-800', badge: 'bg-red-200 dark:bg-red-900/50 text-red-900 dark:text-red-300 border-red-400 dark:border-red-800/50', label: 'Extreme Match' };
-  if (score >= 65) return { card: 'bg-red-50 dark:bg-red-900/20 border-red-300 dark:border-red-800/50', badge: 'bg-red-100 dark:bg-red-900/40 text-red-800 dark:text-red-300 border-red-200 dark:border-red-800/50', label: 'Critical Match' };
-  if (score >= 62.5) return { card: 'bg-rose-50 dark:bg-rose-900/20 border-rose-300 dark:border-rose-800/50', badge: 'bg-rose-100 dark:bg-rose-900/40 text-rose-800 dark:text-rose-300 border-rose-200 dark:border-rose-800/50', label: 'Very High Match' };
-  if (score >= 60) return { card: 'bg-orange-50 dark:bg-orange-900/20 border-orange-300 dark:border-orange-800/50', badge: 'bg-orange-100 dark:bg-orange-900/40 text-orange-800 dark:text-orange-300 border-orange-200 dark:border-orange-800/50', label: 'High Match' };
-  if (score >= 57.5) return { card: 'bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800/50', badge: 'bg-yellow-100 dark:bg-yellow-900/40 text-yellow-700 dark:text-yellow-300 border-yellow-200 dark:border-yellow-800/50', label: 'Elevated Overlap' };
+  if (score >= 63) return { card: 'bg-red-100 dark:bg-red-900/30 border-red-400 dark:border-red-800', badge: 'bg-red-200 dark:bg-red-900/50 text-red-900 dark:text-red-300 border-red-400 dark:border-red-800/50', label: 'Extreme Match' };
+  if (score >= 60) return { card: 'bg-red-50 dark:bg-red-900/20 border-red-300 dark:border-red-800/50', badge: 'bg-red-100 dark:bg-red-900/40 text-red-800 dark:text-red-300 border-red-200 dark:border-red-800/50', label: 'Critical Match' };
+  if (score >= 57.5) return { card: 'bg-rose-50 dark:bg-rose-900/20 border-rose-300 dark:border-rose-800/50', badge: 'bg-rose-100 dark:bg-rose-900/40 text-rose-800 dark:text-rose-300 border-rose-200 dark:border-rose-800/50', label: 'Very High Match' };
+  if (score >= 55) return { card: 'bg-orange-50 dark:bg-orange-900/20 border-orange-300 dark:border-orange-800/50', badge: 'bg-orange-100 dark:bg-orange-900/40 text-orange-800 dark:text-orange-300 border-orange-200 dark:border-orange-800/50', label: 'High Match' };
+  if (score >= 52.5) return { card: 'bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800/50', badge: 'bg-yellow-100 dark:bg-yellow-900/40 text-yellow-700 dark:text-yellow-300 border-yellow-200 dark:border-yellow-800/50', label: 'Elevated Overlap' };
   return { card: 'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700', badge: 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-600', label: 'Standard Overlap' };
 };
 
